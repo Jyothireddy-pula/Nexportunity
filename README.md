@@ -1,5 +1,4 @@
 # Startup Opportunity Aggregator
-
 Production-grade Flask SaaS-style project for scraping, validating, deduplicating, storing, searching, scheduling, and exporting startup opportunities.
 
 ## Quick Input → Output Guide
