@@ -468,12 +468,12 @@
   
   <!-- Search and Filters -->
   <div class="glass-card p-4 mb-4 animate-fade-in" style="animation-delay: 0.5s">
-    <form class="row g-3">
+    <form class="row g-3" id="filterForm">
       <div class="col-md-4">
         <input class="form-control form-control-custom" name="q" placeholder=" Search opportunities..." value="{{ q }}">
       </div>
       <div class="col-md-3">
-        <select class="form-select form-control-custom" name="source">
+        <select class="form-select form-select-custom" name="source">
           <option value="">All Sources</option>
           <option value="Startup India" {% if source == 'Startup India' %}selected{% endif %}>Startup India</option>
           <option value="MeITY" {% if source == 'MeITY' %}selected{% endif %}>MeITY</option>
@@ -484,7 +484,7 @@
         </select>
       </div>
       <div class="col-md-3">
-        <select class="form-select form-control-custom" name="type">
+        <select class="form-select form-select-custom" name="type">
           <option value="">All Types</option>
           <option value="grant" {% if kind == 'grant' %}selected{% endif %}>Grant</option>
           <option value="accelerator" {% if kind == 'accelerator' %}selected{% endif %}>Accelerator</option>
@@ -575,8 +575,9 @@
   <!-- Footer -->
   <div class="text-center mt-5 text-white-50">
     <p class="mb-0">
-      <i class="bi bi-lightning-charge-fill pulse-animation"></i>
-      Auto-updating every minute • 
+      <span class="live-indicator"></span>
+      Live Updates • 
+      <span id="update-timer">Next update in 30s</span> • 
       <a href="/api/health" class="text-white-50 text-decoration-none">API Status</a> • 
       <a href="/api/monitoring/stats" class="text-white-50 text-decoration-none">Monitoring</a>
     </p>
@@ -584,16 +585,44 @@
 </div>
 
 <script>
+let updateTimer = 30;
+let autoRefreshInterval;
+
 // Load stats
-fetch('/api/stats')
-  .then(response => response.json())
-  .then(data => {
-    document.getElementById('total-count').textContent = data.total;
-    document.getElementById('source-count').textContent = Object.keys(data.sources || {}).length;
-    document.getElementById('type-count').textContent = (data.grants || 0) + (data.accelerators || 0) + (data.programs || 0);
-    document.getElementById('last-update').textContent = 'Live';
-  })
-  .catch(err => console.error('Failed to load stats:', err));
+function loadStats() {
+  fetch('/api/stats')
+    .then(response => response.json())
+    .then(data => {
+      const totalCountEl = document.getElementById('total-count');
+      const oldTotal = parseInt(totalCountEl.textContent) || 0;
+      const newTotal = data.total;
+      
+      // Animate number change
+      if (newTotal !== oldTotal) {
+        totalCountEl.style.transform = 'scale(1.2)';
+        setTimeout(() => totalCountEl.style.transform = 'scale(1)', 200);
+      }
+      
+      totalCountEl.textContent = newTotal;
+      document.getElementById('source-count').textContent = Object.keys(data.sources || {}).length;
+      document.getElementById('type-count').textContent = (data.grants || 0) + (data.accelerators || 0) + (data.programs || 0);
+      document.getElementById('last-update').textContent = 'Just now';
+      
+      // Reset timer
+      updateTimer = 30;
+    })
+    .catch(err => console.error('Failed to load stats:', err));
+}
+
+// Update timer display
+function updateTimerDisplay() {
+  document.getElementById('update-timer').textContent = `Next update in ${updateTimer}s`;
+  updateTimer--;
+  if (updateTimer < 0) {
+    updateTimer = 30;
+    loadStats();
+  }
+}
 
 function toggleDarkMode() {
   const html = document.documentElement;
@@ -630,17 +659,17 @@ document.addEventListener('DOMContentLoaded', () => {
     row.style.animationDelay = `${index * 0.05}s`;
   });
   
-  // Auto-refresh stats every 30 seconds
+  // Initial stats load
+  loadStats();
+  
+  // Start timer
+  autoRefreshInterval = setInterval(updateTimerDisplay, 1000);
+  
+  // Add live indicator pulse animation
+  const liveIndicator = document.querySelector('.live-indicator');
   setInterval(() => {
-    fetch('/api/stats')
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('total-count').textContent = data.total;
-        document.getElementById('source-count').textContent = Object.keys(data.sources || {}).length;
-        document.getElementById('type-count').textContent = (data.grants || 0) + (data.accelerators || 0) + (data.programs || 0);
-      })
-      .catch(err => console.error('Failed to refresh stats:', err));
-  }, 30000);
+    liveIndicator.style.opacity = liveIndicator.style.opacity === '0.5' ? '1' : '0.5';
+  }, 1000);
 });
 </script>
 </body>
