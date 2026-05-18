@@ -6,7 +6,10 @@ from config.settings import get_config
 from routes.dashboard import dashboard_bp
 from routes.export import export_bp
 from routes.health import health_bp
+from routes.api import api_bp
+from routes.analytics import analytics_bp
 from scheduler.jobs import start_scheduler
+from services.email_service import EmailService, EmailConfig
 
 
 def create_app(config_name: str | None = None) -> Flask:
@@ -25,6 +28,20 @@ def create_app(config_name: str | None = None) -> Flask:
     app.register_blueprint(health_bp, url_prefix="/api")
     app.register_blueprint(export_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(api_bp)
+    app.register_blueprint(analytics_bp)
+
+    # Configure email service
+    email_config = EmailConfig(
+        enabled=app.config.get("EMAIL_ENABLED", False),
+        smtp_server=app.config.get("SMTP_SERVER", ""),
+        smtp_port=app.config.get("SMTP_PORT", 587),
+        smtp_username=app.config.get("SMTP_USERNAME", ""),
+        smtp_password=app.config.get("SMTP_PASSWORD", ""),
+        from_email=app.config.get("FROM_EMAIL", ""),
+        to_emails=app.config.get("TO_EMAILS", [])
+    )
+    EmailService.configure(email_config)
 
     @app.get("/api/stats")
     def stats():

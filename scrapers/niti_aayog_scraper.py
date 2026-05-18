@@ -4,28 +4,28 @@ from scrapers.base_scraper import BaseScraper
 from utils.text import build_hash, normalize_title
 
 
-class StartupIndiaScraper(BaseScraper):
-    SOURCE = "Startup India"
-    URL = "https://www.startupindia.gov.in/content/sih/en/search.html"
+class NitiAayogScraper(BaseScraper):
+    """Scraper for NITI Aayog initiatives and schemes"""
+    SOURCE = "NITI Aayog"
+    URL = "https://www.niti.gov.in/schemes"
 
     def scrape(self):
         html = self.fetch(self.URL)
         soup = BeautifulSoup(html, "html.parser")
         results = []
         
-        # Try to find opportunity cards with better selectors
-        cards = soup.select(".card, .opportunity-card, .search-result, .result-item")
+        # Try to find scheme cards
+        cards = soup.select(".scheme-card, .card, .scheme-item, .views-row, .field-title")
         
         if not cards:
-            # Fallback to all links if specific cards not found
             cards = soup.select("a")
         
-        for i, card in enumerate(cards[:50]):  # Increased from 10 to 50 for more opportunities
+        for i, card in enumerate(cards[:30]):
             try:
                 # Try multiple ways to get title
                 title = None
-                if card.select_one(".title, .card-title, h3, h4"):
-                    title_elem = card.select_one(".title, .card-title, h3, h4")
+                if card.select_one(".title, .scheme-title, h3, h4, .field-title"):
+                    title_elem = card.select_one(".title, .scheme-title, h3, h4, .field-title")
                     title = title_elem.get_text(strip=True)
                 else:
                     title = card.get_text(strip=True)
@@ -38,23 +38,18 @@ class StartupIndiaScraper(BaseScraper):
                 if not title or not href or len(title) < 10:
                     continue
                 
-                # Filter out language names and irrelevant content
-                irrelevant_keywords = ["ᱥᱟᱱᱛᱟᱲᱤ", "मैथिली", "संस्कृतम्", "बड़", "सिन्धी", "মণিপুরী", "नेपाली", "اردو", "کشمیری", "डोगरी", "Беларус", "English", "हिन्दी", "language", "lang"]
-                if any(keyword in title.lower() for keyword in irrelevant_keywords):
-                    continue
-                
                 # Ensure link is absolute
                 if href.startswith("/"):
-                    link = f"https://www.startupindia.gov.in{href}"
+                    link = f"https://www.niti.gov.in{href}"
                 elif not href.startswith("http"):
-                    link = f"https://www.startupindia.gov.in/{href}"
+                    link = f"https://www.niti.gov.in/{href}"
                 else:
                     link = href
                 
                 # Extract location if available
                 location = "India"
-                if card.select_one(".location, .city, .state"):
-                    location = card.select_one(".location, .city, .state").get_text(strip=True)
+                if card.select_one(".location, .state"):
+                    location = card.select_one(".location, .state").get_text(strip=True)
                 
                 # Extract deadline if available
                 deadline = None
@@ -65,14 +60,14 @@ class StartupIndiaScraper(BaseScraper):
                 results.append({
                     "title": title,
                     "normalized_title": n,
-                    "opportunity_type": "program",
-                    "organizer": "Startup India",
+                    "opportunity_type": "grant",
+                    "organizer": "NITI Aayog",
                     "location": location,
                     "eligibility": "See source",
                     "deadline": deadline,
                     "source_platform": self.SOURCE,
                     "source_link": link,
-                    "tags": "startup,india,government",
+                    "tags": "government,india,policy,development",
                     "row_hash": build_hash(n, self.SOURCE, link)
                 })
             except Exception as e:

@@ -1,35 +1,647 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Startup Opportunity Aggregator</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh;
+      transition: background 0.5s ease;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    body[data-bs-theme="dark"] {
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      background-size: 400% 400%;
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      z-index: 1;
+    }
+    
+    body[data-bs-theme="dark"] .glass-card {
+      background: rgba(20, 20, 40, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s;
+    }
+    
+    .glass-card:hover::before {
+      left: 100%;
+    }
+    
+    .glass-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+    }
+    
+    .dark-mode-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      font-size: 26px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+      cursor: pointer;
+    }
+    
+    .dark-mode-toggle:hover {
+      transform: rotate(180deg) scale(1.15);
+      box-shadow: 0 12px 35px rgba(102, 126, 234, 0.7);
+    }
+    
+    .dark-mode-toggle:active {
+      transform: rotate(180deg) scale(0.95);
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 200% 200%;
+      animation: gradientText 3s ease infinite;
+    }
+    
+    @keyframes gradientText {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+      border-radius: 20px;
+      padding: 30px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    
+    .stat-card:hover::after {
+      opacity: 1;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-12px) scale(1.03);
+      box-shadow: 0 20px 50px rgba(102, 126, 234, 0.4);
+      border-color: rgba(102, 126, 234, 0.4);
+    }
+    
+    .stat-number {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+    
+    .table-custom {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table-custom thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 10s ease infinite;
+      color: white;
+    }
+    
+    .table-custom thead th {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      padding: 16px;
+    }
+    
+    .table-custom tbody tr {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    
+    .table-custom tbody tr:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+      transform: scale(1.01);
+    }
+    
+    .table-custom tbody td {
+      padding: 16px;
+      vertical-align: middle;
+    }
+    
+    .badge-custom {
+      padding: 10px 18px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .badge-custom:hover {
+      transform: scale(1.15) rotate(-2deg);
+    }
+    
+    .btn-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 8s ease infinite;
+      border: none;
+      color: white;
+      padding: 14px 35px;
+      border-radius: 30px;
+      font-weight: 700;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.9rem;
+    }
+    
+    .btn-gradient:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 12px 35px rgba(102, 126, 234, 0.7);
+    }
+    
+    .btn-gradient:active {
+      transform: translateY(-2px) scale(0.98);
+    }
+    
+    .form-control-custom {
+      border-radius: 15px;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      padding: 14px 24px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 1rem;
+    }
+    
+    .form-control-custom:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+      transform: scale(1.02);
+    }
+    
+    .form-select-custom {
+      border-radius: 15px;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      padding: 14px 24px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 1rem;
+    }
+    
+    .form-select-custom:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .pulse-animation {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+      }
+    }
+    
+    .floating {
+      animation: floating 4s ease-in-out infinite;
+    }
+    
+    @keyframes floating {
+      0%, 100% {
+        transform: translateY(0) rotate(0deg);
+      }
+      25% {
+        transform: translateY(-8px) rotate(2deg);
+      }
+      50% {
+        transform: translateY(-12px) rotate(0deg);
+      }
+      75% {
+        transform: translateY(-8px) rotate(-2deg);
+      }
+    }
+    
+    .shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    .live-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: livePulse 1.5s ease-in-out infinite;
+      margin-right: 8px;
+    }
+    
+    @keyframes livePulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+        box-shadow: 0 0 0 10px rgba(74, 222, 128, 0);
+      }
+    }
+    
+    .scroll-indicator {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+      z-index: 1001;
+      transition: width 0.3s ease;
+    }
+    
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 20px;
+      height: 20px;
+      background: #ef4444;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    @keyframes bounceIn {
+      0% {
+        transform: scale(0);
+      }
+      50% {
+        transform: scale(1.3);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    
+    .container {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
 </head>
-<body class="bg-light">
-<div class="container py-4">
-  <h1 class="mb-3">Startup Opportunity Aggregator</h1>
-  <form class="row g-2 mb-3">
-    <div class="col-md-4"><input class="form-control" name="q" placeholder="Search" value="{{ q }}"></div>
-    <div class="col-md-3"><input class="form-control" name="source" placeholder="Source" value="{{ source }}"></div>
-    <div class="col-md-3"><input class="form-control" name="type" placeholder="Type" value="{{ kind }}"></div>
-    <div class="col-md-2"><button class="btn btn-primary w-100">Filter</button></div>
-  </form>
-  <div class="table-responsive">
-    <table class="table table-striped table-bordered bg-white">
-      <thead><tr><th>Title</th><th>Type</th><th>Organizer</th><th>Source</th><th>Link</th></tr></thead>
-      <tbody>
-      {% for item in items %}
-      <tr>
-        <td>{{ item.title }}</td><td>{{ item.opportunity_type }}</td><td>{{ item.organizer }}</td><td>{{ item.source_platform }}</td>
-        <td><a href="{{ item.source_link }}" target="_blank">Open</a></td>
-      </tr>
-      {% else %}
-      <tr><td colspan="5" class="text-center text-muted">No opportunities found.</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
+<body>
+<button class="btn dark-mode-toggle" onclick="toggleDarkMode()">
+  <i class="bi bi-moon-stars" id="theme-icon"></i>
+</button>
+
+<div class="container py-5">
+  <div class="text-center mb-5 animate-fade-in">
+    <h1 class="display-4 fw-bold text-white mb-3">
+      <i class="bi bi-rocket-takeoff floating"></i>
+      Startup Opportunity Aggregator
+    </h1>
+    <p class="lead text-white-50">Discover grants, accelerators, and programs for your startup</p>
+  </div>
+  
+  <!-- Stats Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="stat-card glass-card animate-fade-in" style="animation-delay: 0.1s">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-database fs-2 me-3 text-primary"></i>
+          <div>
+            <p class="mb-0 text-muted">Total Opportunities</p>
+            <div class="stat-number" id="total-count">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="stat-card glass-card animate-fade-in" style="animation-delay: 0.2s">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-globe fs-2 me-3 text-success"></i>
+          <div>
+            <p class="mb-0 text-muted">Sources</p>
+            <div class="stat-number" id="source-count">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="stat-card glass-card animate-fade-in" style="animation-delay: 0.3s">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-tag fs-2 me-3 text-info"></i>
+          <div>
+            <p class="mb-0 text-muted">Types</p>
+            <div class="stat-number" id="type-count">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="stat-card glass-card animate-fade-in" style="animation-delay: 0.4s">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-clock-history fs-2 me-3 text-warning"></i>
+          <div>
+            <p class="mb-0 text-muted">Last Update</p>
+            <div class="stat-number" style="font-size: 1.5rem" id="last-update">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Search and Filters -->
+  <div class="glass-card p-4 mb-4 animate-fade-in" style="animation-delay: 0.5s">
+    <form class="row g-3">
+      <div class="col-md-4">
+        <input class="form-control form-control-custom" name="q" placeholder=" Search opportunities..." value="{{ q }}">
+      </div>
+      <div class="col-md-3">
+        <select class="form-select form-control-custom" name="source">
+          <option value="">All Sources</option>
+          <option value="Startup India" {% if source == 'Startup India' %}selected{% endif %}>Startup India</option>
+          <option value="MeITY" {% if source == 'MeITY' %}selected{% endif %}>MeITY</option>
+          <option value="NITI Aayog" {% if source == 'NITI Aayog' %}selected{% endif %}>NITI Aayog</option>
+          <option value="MSME" {% if source == 'MSME' %}selected{% endif %}>MSME</option>
+          <option value="F6S" {% if source == 'F6S' %}selected{% endif %}>F6S</option>
+          <option value="Eventbrite" {% if source == 'Eventbrite' %}selected{% endif %}>Eventbrite</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select class="form-select form-control-custom" name="type">
+          <option value="">All Types</option>
+          <option value="grant" {% if kind == 'grant' %}selected{% endif %}>Grant</option>
+          <option value="accelerator" {% if kind == 'accelerator' %}selected{% endif %}>Accelerator</option>
+          <option value="program" {% if kind == 'program' %}selected{% endif %}>Program</option>
+          <option value="conference" {% if kind == 'conference' %}selected{% endif %}>Conference</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-gradient w-100">
+          <i class="bi bi-search"></i> Filter
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Opportunities Table -->
+  <div class="glass-card p-4 animate-fade-in" style="animation-delay: 0.6s">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="gradient-text fw-bold">
+        <i class="bi bi-list-stars"></i> Opportunities
+      </h3>
+      <div>
+        <a href="/analytics" class="btn btn-outline-primary me-2">
+          <i class="bi bi-graph-up"></i> Analytics
+        </a>
+        <a href="/api/export/csv" class="btn btn-outline-success">
+          <i class="bi bi-download"></i> Export CSV
+        </a>
+      </div>
+    </div>
+    
+    <div class="table-responsive">
+      <table class="table table-custom">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Organizer</th>
+            <th>Source</th>
+            <th>Stage</th>
+            <th>Funding</th>
+            <th>Location</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr class="animate-fade-in table-row-{{ loop.index }}">
+            <td>
+              <strong>{{ item.title }}</strong>
+              <br>
+              <small class="text-muted">{{ item.tags }}</small>
+            </td>
+            <td>
+              <span class="badge badge-custom bg-primary">{{ item.opportunity_type|title }}</span>
+            </td>
+            <td>{{ item.organizer }}</td>
+            <td>{{ item.source_platform }}</td>
+            <td>
+              <span class="badge badge-custom bg-info">{{ item.startup_stage or 'N/A' }}</span>
+            </td>
+            <td>
+              <span class="badge badge-custom bg-success">{{ item.funding_range or 'N/A' }}</span>
+            </td>
+            <td>
+              <span class="badge badge-custom bg-warning">{{ item.location_type or 'N/A' }}</span>
+            </td>
+            <td>
+              <a href="{{ item.source_link }}" target="_blank" class="btn btn-sm btn-gradient">
+                <i class="bi bi-box-arrow-up-right"></i> Open
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" class="text-center text-muted py-5">
+              <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+              <h5>No opportunities found</h5>
+              <p>Try adjusting your filters or wait for the next scrape</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Footer -->
+  <div class="text-center mt-5 text-white-50">
+    <p class="mb-0">
+      <i class="bi bi-lightning-charge-fill pulse-animation"></i>
+      Auto-updating every minute • 
+      <a href="/api/health" class="text-white-50 text-decoration-none">API Status</a> • 
+      <a href="/api/monitoring/stats" class="text-white-50 text-decoration-none">Monitoring</a>
+    </p>
   </div>
 </div>
+
+<script>
+// Load stats
+fetch('/api/stats')
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('total-count').textContent = data.total;
+    document.getElementById('source-count').textContent = Object.keys(data.sources || {}).length;
+    document.getElementById('type-count').textContent = (data.grants || 0) + (data.accelerators || 0) + (data.programs || 0);
+    document.getElementById('last-update').textContent = 'Live';
+  })
+  .catch(err => console.error('Failed to load stats:', err));
+
+function toggleDarkMode() {
+  const html = document.documentElement;
+  const icon = document.getElementById('theme-icon');
+  const currentTheme = html.getAttribute('data-bs-theme');
+  
+  if (currentTheme === 'light') {
+    html.setAttribute('data-bs-theme', 'dark');
+    icon.classList.remove('bi-moon-stars');
+    icon.classList.add('bi-sun');
+    localStorage.setItem('theme', 'dark');
+  } else {
+    html.setAttribute('data-bs-theme', 'light');
+    icon.classList.remove('bi-sun');
+    icon.classList.add('bi-moon-stars');
+    localStorage.setItem('theme', 'light');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  const html = document.documentElement;
+  const icon = document.getElementById('theme-icon');
+  
+  html.setAttribute('data-bs-theme', savedTheme);
+  if (savedTheme === 'dark') {
+    icon.classList.remove('bi-moon-stars');
+    icon.classList.add('bi-sun');
+  }
+  
+  // Set animation delays for table rows
+  const tableRows = document.querySelectorAll('tbody tr');
+  tableRows.forEach((row, index) => {
+    row.style.animationDelay = `${index * 0.05}s`;
+  });
+  
+  // Auto-refresh stats every 30 seconds
+  setInterval(() => {
+    fetch('/api/stats')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('total-count').textContent = data.total;
+        document.getElementById('source-count').textContent = Object.keys(data.sources || {}).length;
+        document.getElementById('type-count').textContent = (data.grants || 0) + (data.accelerators || 0) + (data.programs || 0);
+      })
+      .catch(err => console.error('Failed to refresh stats:', err));
+  }, 30000);
+});
+</script>
 </body>
 </html>

@@ -16,6 +16,9 @@ class Opportunity(TimestampMixin, db.Model):
     source_platform = db.Column(db.String(80), nullable=False, index=True)
     source_link = db.Column(db.String(500), nullable=False, unique=True)
     tags = db.Column(db.String(300), nullable=False, default="startup")
+    startup_stage = db.Column(db.String(50), nullable=True, index=True)
+    location_type = db.Column(db.String(20), nullable=True, index=True)
+    funding_range = db.Column(db.String(50), nullable=True, index=True)
     row_hash = db.Column(db.String(64), nullable=False, unique=True, index=True)
 
     __table_args__ = (
